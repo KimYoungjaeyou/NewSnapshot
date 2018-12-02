@@ -1,0 +1,13 @@
+server:
+  port: 8081
+
+#spring:
+#  application:
+#    name: snapshot_ui    
+#  thymeleaf:
+#    prefix: classpath:/static/html/
+    
+elasticsearch:
+  host: 169.56.92.34
+  port: 9200
+  #clustername: js-cluster    
