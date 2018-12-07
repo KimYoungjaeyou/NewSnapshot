@@ -8,6 +8,9 @@ server:
 #    prefix: classpath:/static/html/
     
 elasticsearch:
-  host: 169.56.92.34
+  host: 10.178.221.164
   port: 9200
-  #clustername: js-cluster    
+#  type: 
+#    - create_obj
+#    - result_obj
+#    - delete_obj
