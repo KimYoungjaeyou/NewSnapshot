@@ -26,28 +26,17 @@ public class SnapshotEsController {
 		
 	   @RequestMapping("/gateway")
 	   public void getGatewayReqCount() {
-		   ArrayList<String> elasticController = new ArrayList<>();
- 		   elasticController.add("snapshotcreateController");
- 		   elasticController.add("snapshotSelectController");
- 		   elasticController.add("snapshotDeleteController");
-		   for(int i=0; i<elasticController.size(); i++) {
-			   elasticApi.getGwTotalCount(new SnapshotEsVO("2018-12",elasticController.get(i),"called_api","2018-12-04","2018-12-05","true false","tt"));
-			   elasticApi.getGwTotalSuccessCount(new SnapshotEsVO("20181211",elasticController.get(i),"create_obj result_obj delete_obj","20181201","20181204","true","tt"));
-			   elasticApi.getGwTotalFailCount(new SnapshotEsVO("20181211",elasticController.get(i),"error_log","20181201","20181204","true","tt"));
-		   }
+
+			   elasticApi.getGwTotalCount(new SnapshotEsVO("2018-12","","called_api","2018-12-04","2018-12-05",""));
+
 	   }
 	   
 	   @RequestMapping("/snapshot")
 	   public void getSnapshotReqCount() {
 		   ArrayList<String> elasticController = new ArrayList<>();
- 		   elasticController.add("snapshotcreateController");
- 		   elasticController.add("snapshotSelectController");
- 		   elasticController.add("snapshotDeleteController");
-		   for(int i=0; i<elasticController.size(); i++) {
-			   elasticApi.getTotalcount(new SnapshotEsVO("2018-12",elasticController.get(i),"called_api","2018-12-04","2018-12-05","true false","tt"));
-			   elasticApi.getTotalSuccessCount(new SnapshotEsVO("20181211",elasticController.get(i),"create_obj result_obj delete_obj","20181201","20181204","true","tt"));
-			   elasticApi.getTotalFailCount(new SnapshotEsVO("20181211",elasticController.get(i),"error_log","20181201","20181204","true","tt"));
-		   }
+		   
+ 		   		elasticApi.getSsCount(new SnapshotEsVO("2018-12","snapshotSelectController","result_obj","20181201","20181204",""));
+ 		   		elasticApi.getSsFailCount(new SnapshotEsVO("2018-12","snapshotSelectController","result_obj","20181201","20181204","false"));
 	   }
 	   
 //	   @RequestMapping("/")

@@ -1,7 +1,6 @@
 package com.snapshot.es.service;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
@@ -10,7 +9,9 @@ import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.snapshot.es.vo.SnapshotEsVO;
 
@@ -75,54 +76,41 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
         this.client = client;
     }	
     
+
+	
 	@Override
 	public int getGwTotalCount(SnapshotEsVO reqfg) {
-		
-		String url = "gw_log-" + reqfg.getDate() + "/_count";
+		String url = "gw_log-" + reqfg.getDate() + "/_search";
 		String querydsl = "{ \"query\" : " 													+ 
 						   "{ \"bool\" : "													+
 							"{ \"must\" : [ " 												+
-							 "{ \"match\" : { \"type\" : \"" + reqfg.getController() + "\" } } , "    +
 							  "{ \"range\" : { " 											+
 							   " \"reqdate\" : { "  										+
 							        " \"gte\" : \"" + reqfg.getFromdt() + "\", " 				+
 							        " \"lte\" : \"" + reqfg.getTodt()  + "\", "  				+
 							        " \"format\" : \"yyyy-MM-dd\" " 						+
-							      "}}}],"													+
-							       "\"must_not\" : { "										+
-							       "	\"match\" : \"" + reqfg.getType() + "\" "		+
-							       "}}}}";
-		System.out.println(querydsl);
-		Request request = new Request("GET",url);	
-		request.setJsonEntity(querydsl);			
-		System.out.println("getTotlaCount임!!!!!");
-		return elasticsearchExec(request);
-	}
-	
-	
-	@Override
-	public int getGwTotalSuccessCount(SnapshotEsVO reqfg) {
-		String url = "gw_log-" + reqfg.getDate() + "/_count";
-		String querydsl = "{ \"query\" : " 													+ 
-						   "{ \"bool\" : "													+
-							"{ \"must\" : [ " 												+
-							 "{ \"match\" : { \"Controller\" : \"" + reqfg.getController() + "\" } } , "    +
-							  "{ \"match\" : { \"type\" : \"" + reqfg.getType() + "\" } } , " +
-							  "{ \"range\" : { " 											+
-							   " \"reqdate\" : { "  										+
-							        " \"gte\" : \"" + reqfg.getFromdt() + "\", " 				+
-							        " \"lte\" : \"" + reqfg.getTodt()  + "\", "  				+
-							        " \"format\" : \"yyyy-MM-dd\" " 						+
-							      "}}}]}}}";
+								      "}}}]}} ,"			+
+								      " \"size\" : 0 ," 		+
+								     "\"aggs\" : { " +
+								     "\"group_by_state\" : { " +
+								     "\"terms\" : { " +
+								     "\"field\" : \"Controller.keyword\" } , "+
+								     "\"aggs\" : { " +
+								     "\"group_by_state\" : { " +
+								     "\"terms\" : { " +
+								     "\"field\" : \"type.keyword\" }" +
+								     "}}}}}";
 		System.out.println(querydsl);
 		Request request = new Request("GET",url);	
 		request.setJsonEntity(querydsl);			
 		System.out.println("getTotalSuccessCount임!!!!!");
 		return elasticsearchExec(request);
 	}
+	
 	@Override
-	public Map getGwTotalFailCount(SnapshotEsVO reqfg) {
-		String url = "gw_log-" + reqfg.getDate() + "/_count";
+	public int getSsCount(SnapshotEsVO reqfg) {
+		
+		String url = "gw_log-" + reqfg.getDate() + "/_search";
 		String querydsl = "{ \"query\" : " 													+ 
 						   "{ \"bool\" : "													+
 							"{ \"must\" : [ " 												+
@@ -133,39 +121,72 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 							        " \"gte\" : \"" + reqfg.getFromdt() + "\", " 				+
 							        " \"lte\" : \"" + reqfg.getTodt()  + "\", "  				+
 							        " \"format\" : \"yyyy-MM-dd\" " 						+
-							      "}}}]}}}";
+							      "}}}]}}} ,"			+
+							      " \"size\" : 0 ," 		+
+							     "\"aggs\" : { " +
+							     "\"group_by_state\" : { " +
+							     "\"terms\" : { " +
+							     "\"field\" : \"success\" "+
+							     "}}}";
+		
 		System.out.println(querydsl);
 		Request request = new Request("GET",url);	
 		request.setJsonEntity(querydsl);			
-		System.out.println("getTotalFailCount임!!!!!");
+		System.out.println("getSsCount임!!!!!");
 		return elasticsearchExec(request);
 	}
-	@Override
-	public Map getFailCaseCount(SnapshotEsVO reqfg) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	
+	@Override
+	public int getSsFailCount(SnapshotEsVO reqfg) {
+		
+		String url = "gw_log-" + reqfg.getDate() + "/_search";
+		String querydsl = "{ \"query\" : " 													+ 
+						   "{ \"bool\" : "													+
+							"{ \"must\" : [ " 												+
+							 "{ \"match\" : { \"Controller\" : \"" + reqfg.getController() + "\" } } , "    +
+							  "{ \"match\" : { \"type\" : \"" + reqfg.getType() + "\" } } , " +
+							  "{ \"match\" : { \"success\" : \"" + reqfg.getSuccess() + "\" } }  " +
+							  "{ \"range\" : { " 											+
+							   " \"reqdate\" : { "  										+
+							        " \"gte\" : \"" + reqfg.getFromdt() + "\", " 				+
+							        " \"lte\" : \"" + reqfg.getTodt()  + "\", "  				+
+							        " \"format\" : \"yyyy-MM-dd\" " 						+
+							      "}}}]}}} ,"			+
+							      " \"size\" : 0 ," 		+
+							     "\"aggs\" : { " +
+							     "\"group_by_state\" : { " +
+							     "\"terms\" : { " +
+							     "\"field\" : \"failReason.keyword\" "+
+							     "}}}";
+		
+		System.out.println(querydsl);
+		Request request = new Request("GET",url);	
+		request.setJsonEntity(querydsl);			
+		System.out.println("getSsFailCount임!!!!!");
+		// TODO Auto-generated method stub
+		return elasticsearchExec(request);
+	}
 
 	
 
 
 	
 	public int elasticsearchExec(Request request) {
-		int count =0;
+		JsonArray count;
 		try {
 			Response response = client.performRequest(request);
 			String responseBody = EntityUtils.toString(response.getEntity());
 			System.out.println("responseBody!!!!!!~"+responseBody);
 			JsonParser parser = new JsonParser();
 			JsonElement element = parser.parse(responseBody);
-			count = element.getAsJsonObject().get("count").getAsInt();
-			System.out.println("결과다"+count);
+			System.out.println("element##" + element);
+			count = (JsonArray) element.getAsJsonObject().get("aggregations");
+			JsonArray jArray =  count.getAsJsonArray(); 
+			System.out.println("결과다"+jArray.toString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
-		return count;
+		return 0;
 	}
 }

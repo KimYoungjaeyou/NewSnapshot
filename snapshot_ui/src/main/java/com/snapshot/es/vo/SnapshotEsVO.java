@@ -8,10 +8,8 @@ public class SnapshotEsVO {
 	private String fromdt;
 	private String todt;
 	private String success;
-	private String reason;
 	
-	public SnapshotEsVO(String date, String controller, String type, String fromdt, String todt, String success,
-			String reason) {
+	public SnapshotEsVO(String date, String controller, String type, String fromdt, String todt, String success) {
 		super();
 		this.date = date;
 		this.controller = controller;
@@ -19,7 +17,6 @@ public class SnapshotEsVO {
 		this.fromdt = fromdt;
 		this.todt = todt;
 		this.success = success;
-		this.reason = reason;
 	}
 	public String getDate() {
 		return date;
@@ -57,11 +54,6 @@ public class SnapshotEsVO {
 	public void setSuccess(String success) {
 		this.success = success;
 	}
-	public String getReason() {
-		return reason;
-	}
-	public void setReason(String reason) {
-		this.reason = reason;
-	}
 	
+
 }
