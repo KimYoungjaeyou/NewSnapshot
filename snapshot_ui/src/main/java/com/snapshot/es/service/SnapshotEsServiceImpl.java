@@ -1,6 +1,10 @@
 package com.snapshot.es.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
@@ -9,6 +13,7 @@ import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -79,7 +84,7 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 
 	
 	@Override
-	public int getGwTotalCount(SnapshotEsVO reqfg) {
+	public List<Map<String, Object>> getGwTotalCount(SnapshotEsVO reqfg) {
 		String url = "gw_log-" + reqfg.getDate() + "/_search";
 		String querydsl = "{ \"query\" : " 													+ 
 						   "{ \"bool\" : "													+
@@ -104,11 +109,12 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 		Request request = new Request("GET",url);	
 		request.setJsonEntity(querydsl);			
 		System.out.println("getTotalSuccessCount임!!!!!");
-		return elasticsearchExec(request);
+		
+		return gwElasticsearchExec(request);
 	}
 	
 	@Override
-	public int getSsCount(SnapshotEsVO reqfg) {
+	public List<Map<String, Object>> getSsCount(SnapshotEsVO reqfg) {
 		
 		String url = "gw_log-" + reqfg.getDate() + "/_search";
 		String querydsl = "{ \"query\" : " 													+ 
@@ -121,23 +127,23 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 							        " \"gte\" : \"" + reqfg.getFromdt() + "\", " 				+
 							        " \"lte\" : \"" + reqfg.getTodt()  + "\", "  				+
 							        " \"format\" : \"yyyy-MM-dd\" " 						+
-							      "}}}]}}} ,"			+
+							      "}}}]}} ,"			+
 							      " \"size\" : 0 ," 		+
 							     "\"aggs\" : { " +
 							     "\"group_by_state\" : { " +
 							     "\"terms\" : { " +
 							     "\"field\" : \"success\" "+
-							     "}}}";
+							     "}}}}";
 		
 		System.out.println(querydsl);
 		Request request = new Request("GET",url);	
 		request.setJsonEntity(querydsl);			
 		System.out.println("getSsCount임!!!!!");
-		return elasticsearchExec(request);
+		return ssElasticsearchExec(request);
 	}
 
 	@Override
-	public int getSsFailCount(SnapshotEsVO reqfg) {
+	public List<Map<String, Object>> getSsFailCount(SnapshotEsVO reqfg) {
 		
 		String url = "gw_log-" + reqfg.getDate() + "/_search";
 		String querydsl = "{ \"query\" : " 													+ 
@@ -145,48 +151,101 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 							"{ \"must\" : [ " 												+
 							 "{ \"match\" : { \"Controller\" : \"" + reqfg.getController() + "\" } } , "    +
 							  "{ \"match\" : { \"type\" : \"" + reqfg.getType() + "\" } } , " +
-							  "{ \"match\" : { \"success\" : \"" + reqfg.getSuccess() + "\" } }  " +
+							  "{ \"match\" : { \"success\" : \"" + reqfg.getSuccess() + "\" } } , " +
 							  "{ \"range\" : { " 											+
 							   " \"reqdate\" : { "  										+
 							        " \"gte\" : \"" + reqfg.getFromdt() + "\", " 				+
 							        " \"lte\" : \"" + reqfg.getTodt()  + "\", "  				+
 							        " \"format\" : \"yyyy-MM-dd\" " 						+
-							      "}}}]}}} ,"			+
+							      "}}}]}} ,"			+
 							      " \"size\" : 0 ," 		+
 							     "\"aggs\" : { " +
 							     "\"group_by_state\" : { " +
 							     "\"terms\" : { " +
 							     "\"field\" : \"failReason.keyword\" "+
-							     "}}}";
+							     "}}}}";
 		
 		System.out.println(querydsl);
 		Request request = new Request("GET",url);	
 		request.setJsonEntity(querydsl);			
 		System.out.println("getSsFailCount임!!!!!");
 		// TODO Auto-generated method stub
-		return elasticsearchExec(request);
+		return ssElasticsearchExec(request);
 	}
 
 	
 
 
 	
-	public int elasticsearchExec(Request request) {
-		JsonArray count;
+	public List<Map<String, Object>> gwElasticsearchExec(Request request) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+
+
 		try {
 			Response response = client.performRequest(request);
 			String responseBody = EntityUtils.toString(response.getEntity());
-			System.out.println("responseBody!!!!!!~"+responseBody);
 			JsonParser parser = new JsonParser();
 			JsonElement element = parser.parse(responseBody);
-			System.out.println("element##" + element);
-			count = (JsonArray) element.getAsJsonObject().get("aggregations");
-			JsonArray jArray =  count.getAsJsonArray(); 
-			System.out.println("결과다"+jArray.toString());
-		} catch (IOException e) {
+			JsonObject count = element.getAsJsonObject();
+			JsonObject count1 = (JsonObject)count.get("aggregations");
+			JsonObject count2 = (JsonObject)count1.get("group_by_state");
+			JsonArray count3 = (JsonArray)count2.get("buckets");
+			for(int i=0; i<count3.size(); i++) {
+				Map<String, Object> result = new HashMap<>();
+				JsonObject fa = (JsonObject) count3.get(i);
+				result.put("Controller", fa.get("key").getAsString());
+				JsonObject fb = (JsonObject)fa.get("group_by_state");
+				JsonArray fc = (JsonArray)fb.get("buckets");
+				System.out.println("fc..."+fc.toString());
+				for(int j=0; j<fc.size(); j++) {
+					JsonObject fd = (JsonObject)fc.get(j);
+					result.put(fd.get("key").getAsString(), fd.get("doc_count").getAsString());	
+					System.out.println("fd..."+fd.toString());
+					
+				}
+				list.add(result);
+
+			}
+	
+		}
+		 catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
-		return 0;
+		return list;
 	}
+	
+	
+	public List<Map<String, Object>> ssElasticsearchExec(Request request) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+
+
+		try {
+			Response response = client.performRequest(request);
+			String responseBody = EntityUtils.toString(response.getEntity());
+			JsonParser parser = new JsonParser();
+			JsonElement element = parser.parse(responseBody);
+			JsonObject count = element.getAsJsonObject();
+			JsonObject count1 = (JsonObject)count.get("aggregations");
+			JsonObject count2 = (JsonObject)count1.get("group_by_state");
+			JsonArray count3 = (JsonArray)count2.get("buckets");
+
+			for(int i=0; i<count3.size(); i++) {
+					Map<String, Object> result = new HashMap<>();
+					JsonObject fa = (JsonObject)count3.get(i);
+					result.put(fa.get("key").getAsString(), fa.get("doc_count").getAsString());	
+					list.add(result);
+			}	
+		}
+		 catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		return list;
+	}
+	
+	
+	
+	
 }
+	

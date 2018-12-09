@@ -2,6 +2,7 @@ package com.snapshot.es.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,16 +28,36 @@ public class SnapshotEsController {
 	   @RequestMapping("/gateway")
 	   public void getGatewayReqCount() {
 
-			   elasticApi.getGwTotalCount(new SnapshotEsVO("2018-12","","called_api","2018-12-04","2018-12-05",""));
-
+		   List<Map<String, Object>> list =  elasticApi.getGwTotalCount(new SnapshotEsVO("2018-12","","called_api","2018-12-04","2018-12-05",""));
+				for (Map<String, Object> map : list) {
+ 				    for (Map.Entry<String, Object> entry : map.entrySet()) {
+ 				        String key = entry.getKey();
+ 				        Object value = entry.getValue();
+ 				        System.out.println(" 컨트롤러임 ! key!!!+ : " + key + "   value !!!+ : " + value );
+ 				    }
+ 				}
 	   }
 	   
 	   @RequestMapping("/snapshot")
 	   public void getSnapshotReqCount() {
 		   ArrayList<String> elasticController = new ArrayList<>();
 		   
- 		   		elasticApi.getSsCount(new SnapshotEsVO("2018-12","snapshotSelectController","result_obj","20181201","20181204",""));
- 		   		elasticApi.getSsFailCount(new SnapshotEsVO("2018-12","snapshotSelectController","result_obj","20181201","20181204","false"));
+		   List<Map<String, Object>> list = elasticApi.getSsCount(new SnapshotEsVO("2018-12","snapshotSelectController","result_obj","2018-12-01","2018-12-04",""));
+ 				for (Map<String, Object> map : list) {
+ 				    for (Map.Entry<String, Object> entry : map.entrySet()) {
+ 				        String key = entry.getKey();
+ 				        Object value = entry.getValue();
+ 				        System.out.println(" 컨트롤러임 ! key!!!+ : " + key + "   value !!!+ : " + value );
+ 				    }
+ 				}
+ 		 List<Map<String, Object>> list2 = elasticApi.getSsFailCount(new SnapshotEsVO("2018-12","snapshotSelectController","result_obj","2018-12-01","2018-12-04","false"));
+			for (Map<String, Object> map : list2) {
+				    for (Map.Entry<String, Object> entry : map.entrySet()) {
+				        String key = entry.getKey();
+				        Object value = entry.getValue();
+				        System.out.println(" 컨트롤러임 ! key!!!+ : " + key + "   value !!!+ : " + value );
+				    }
+				}
 	   }
 	   
 //	   @RequestMapping("/")
