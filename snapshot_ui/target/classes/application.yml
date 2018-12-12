@@ -1,11 +1,11 @@
 server:
   port: 8081
 
-#spring:
-#  application:
-#    name: snapshot_ui    
-#  thymeleaf:
-#    prefix: classpath:/static/html/
+spring:
+  application:
+    name: snapshot_ui    
+  thymeleaf:
+    prefix: classpath:/static/html/
     
 elasticsearch:
   host: 10.178.221.164

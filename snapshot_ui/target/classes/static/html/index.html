@@ -67,22 +67,22 @@
 														</tr>
 													</thead>
 													<tbody id="api_summary_count">
-															<tr>
+<!-- 															<tr>
 																		<td>생성 요청</td>
-																		<td id="api_create_total_cnt"></td>
-																		<td id="api_create_total_success_cnt"></td>
-																		<td id="api_create_total_fail_cnt"></td>
+																		<td id="api_create_total_cnt" th:text="${snapshotCreateController.get('create_obj') + snapshotCreateController.get('error_log')}"></td>
+																		<td id="api_create_total_success_cnt" th:text="${snapshotCreateController.get('create_obj')}"></td>
+																		<td id="api_create_total_fail_cnt" th:text="${snapshotCreateController.get('error_log')}"></td>
 																		<td class="api_create_total_success_ratio"></td>
 																		<td class="api_create_total_fail_ratio"></td>
 															</tr>
 															<tr>
 																		<td>조회 요청</td>
-																		<td id="api_result_total_cnt"></td>
-																		<td id="api_result_total_success_cnt"></td>
-																		<td id="api_result_total_fail_cnt"></td>
+																		<td id="api_result_total_cnt" th:text="${snapshotSelectController.get('result_obj') + snapshotSelectController.get('error_log')}"></td>
+																		<td id="api_result_total_success_cnt" th:text="${snapshotSelectController.get('result_obj')}"></td>
+																		<td id="api_result_total_fail_cnt" th:text="${snapshotSelectController.get('error_log')}"></td>
 																		<td class="api_result_total_success_ratio"></td>
 																		<td class="api_result_total_fail_ratio"></td>
-															</tr>
+															</tr> -->
 															<tr>
 																		<td>삭제 요청</td>
 																		<td id="api_delete_total_cnt"></td>
@@ -196,9 +196,9 @@
 													<tbody id="ss_summary_count">
 															<tr>
 																		<td>생성</td>
-																		<td id="ss_create_total_cnt"></td>
-																		<td id="ss_create_total_success_cnt"></td>
-																		<td id="ss_create_total_fail_cnt"></td>
+																		<td id="ss_create_total_cnt" th:text="${true_flag.get('Count') + false_flag.get('Count')}"></td>
+																		<td id="ss_create_total_success_cnt" th:text="${true_flag.get('Count')}"></td>
+																		<td id="ss_create_total_fail_cnt" th:text="${false_flag.get('Count')}"></td>
 																		<td class="ss_create_total_success_ratio"></td>
 																		<td class="ss_create_total_fail_ratio"></td>
 															</tr>
@@ -239,31 +239,11 @@
 																	<th>건수</th>
 															</tr>
 													</thead>
-													<tbody id="ss_error_count">
-															<tr>
-																		<td>생성</td>
-																		<td style="text-align: left;">유효하지 않은 페이지(DIV:ID:DetailWrapper) 미존재</td>
-																		<td id="ss_create_errtype1_count"> </td>
-															</tr>
+													<tbody id="ss_error_count" th:each="FailReason : ${FailReason}">
 															<tr>
 																	<td>생성</td>
-																	<td style="text-align: left;">유효하지 않은 페이지(폭 또는 길이가 0)</td>
-																	<td id="ss_create_errtype2_count"> </td>
-															</tr>
-															<tr>
-																	<td>생성</td>
-																	<td style="text-align: left;">시스템 오류</td>
-																	<td id="ss_create_errtype3_count"> </td>
-															</tr>
-															<tr>
-																	<td>생성</td>
-																	<td style="text-align: left;">페이지 로딩 타임 아웃</td>
-																	<td id="ss_create_errtype4_count"> </td>
-															</tr>
-															<tr>
-																	<td>생성</td>
-																	<td style="text-align: left;">백화현상</td>
-																	<td id="ss_create_errtype5_count"> </td>
+																	<td style="text-align: left;" th:text="${FailReason.Flag}">유효하지 않은 페이지(DIV:ID:DetailWrapper) 미존재</td>
+																	<td id="ss_create_errtype1_count" th:text="${FailReason.Count}"> </td>
 															</tr>
 													</tbody>
 											</table>

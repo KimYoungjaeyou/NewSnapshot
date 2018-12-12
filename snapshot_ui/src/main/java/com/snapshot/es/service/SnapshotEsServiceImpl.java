@@ -23,56 +23,6 @@ import com.snapshot.es.vo.SnapshotEsVO;
 @Service
 public class SnapshotEsServiceImpl implements SnapshotEsService{
 
- 
-//    /**
-//     * 엘라스틱서치에서 제공하는 api를 이용한 전송메소드
-//     * @param method
-//     * @param url
-//     * @param obj
-//     * @param jsonData
-//     * @return
-//     */
-//    public Map<String, Object> callElasticApi(String method, String url, String querydsl) {
-//        Map<String, Object> result = new HashMap<>();
-//        //엘라스틱서치에서 제공하는 restClient를 통해 엘라스틱서치에 접속한다
-//        System.out.println("querydsl###" + querydsl);
-//        Request request = new Request(method,url);
-//        request.setJsonEntity(querydsl);
-//		try {
-//			Response response = client.performRequest(request);
-//			String responseBody = EntityUtils.toString(response.getEntity());
-//			System.out.println("responseBody!!!!!!~"+responseBody);
-//			JsonParser parser = new JsonParser();
-//			JsonElement element = parser.parse(responseBody);
-//			String count = element.getAsJsonObject().get("count").getAsString();
-//			System.out.println("결과다"+count);
-//		} catch (IOException e) {
-//			// 
-//			e.printStackTrace();
-//		}
-//
-//        
-////        try(RestClient restClient = RestClient.builder(new HttpHost(host, port)).build()) {
-////            Map<String, String> params =  Collections.singletonMap("pretty", "true");
-////            //엘라스틱서치에서 제공하는 response 객체
-////            Response response = null;
-////
-////            //GET, DELETE 메소드는 HttpEntity가 필요없다
-////            if (method.equals("GET") || method.equals("DELETE")) {
-////                response = restClient.performRequest(method, url, params);
-////            } 
-////            //앨라스틱서치에서 리턴되는 응답코드를 받는다
-////            int statusCode = response.getStatusLine().getStatusCode();
-////            //엘라스틱서치에서 리턴되는 응답메시지를 받는다
-////            String responseBody = EntityUtils.toString(response.getEntity());
-////            result.put("resultCode", statusCode);
-////            result.put("resultBody", responseBody);
-////        } catch (Exception e) {
-////            result.put("resultCode", -1);
-////            result.put("resultBody", e.toString());
-////        }
-//        return result;
-    
 	@Autowired
 	private RestClient client;
 	
@@ -84,15 +34,15 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 
 	
 	@Override
-	public List<Map<String, Object>> getGwTotalCount(SnapshotEsVO reqfg) {
-		String url = "gw_log-" + reqfg.getDate() + "/_search";
+	public List<Map<String, Object>> getGwTotalCount(String month, String frdt, String todt) {
+		String url = "gw_log-" + month + "/_search";
 		String querydsl = "{ \"query\" : " 													+ 
 						   "{ \"bool\" : "													+
 							"{ \"must\" : [ " 												+
 							  "{ \"range\" : { " 											+
 							   " \"reqdate\" : { "  										+
-							        " \"gte\" : \"" + reqfg.getFromdt() + "\", " 				+
-							        " \"lte\" : \"" + reqfg.getTodt()  + "\", "  				+
+							        " \"gte\" : \"" + frdt + "\", " 				+
+							        " \"lte\" : \"" + todt  + "\", "  				+
 							        " \"format\" : \"yyyy-MM-dd\" " 						+
 								      "}}}]}} ,"			+
 								      " \"size\" : 0 ," 		+
@@ -114,18 +64,18 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 	}
 	
 	@Override
-	public List<Map<String, Object>> getSsCount(SnapshotEsVO reqfg) {
-		
-		String url = "gw_log-" + reqfg.getDate() + "/_search";
+	public List<Map<String, Object>> getSsCount(String month, String frdt, String todt) {
+	
+		String url = "gw_log-" + month + "/_search";
 		String querydsl = "{ \"query\" : " 													+ 
 						   "{ \"bool\" : "													+
 							"{ \"must\" : [ " 												+
-							 "{ \"match\" : { \"Controller\" : \"" + reqfg.getController() + "\" } } , "    +
-							  "{ \"match\" : { \"type\" : \"" + reqfg.getType() + "\" } } , " +
+							 "{ \"match\" : { \"Controller\" : \"snapshotSelectController\" } } , "    +
+							  "{ \"match\" : { \"type\" : \"result_obj\" } } , " +
 							  "{ \"range\" : { " 											+
 							   " \"reqdate\" : { "  										+
-							        " \"gte\" : \"" + reqfg.getFromdt() + "\", " 				+
-							        " \"lte\" : \"" + reqfg.getTodt()  + "\", "  				+
+							        " \"gte\" : \"" + frdt + "\", " 				+
+							        " \"lte\" : \"" + todt  + "\", "  				+
 							        " \"format\" : \"yyyy-MM-dd\" " 						+
 							      "}}}]}} ,"			+
 							      " \"size\" : 0 ," 		+
@@ -143,19 +93,19 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 	}
 
 	@Override
-	public List<Map<String, Object>> getSsFailCount(SnapshotEsVO reqfg) {
-		
-		String url = "gw_log-" + reqfg.getDate() + "/_search";
+	public List<Map<String, Object>> getSsFailCount(String month, String frdt, String todt) {
+
+		String url = "gw_log-" + month + "/_search";
 		String querydsl = "{ \"query\" : " 													+ 
 						   "{ \"bool\" : "													+
 							"{ \"must\" : [ " 												+
-							 "{ \"match\" : { \"Controller\" : \"" + reqfg.getController() + "\" } } , "    +
-							  "{ \"match\" : { \"type\" : \"" + reqfg.getType() + "\" } } , " +
-							  "{ \"match\" : { \"success\" : \"" + reqfg.getSuccess() + "\" } } , " +
+							 "{ \"match\" : { \"Controller\" : \"snapshotSelectController\" } } , "    +
+							  "{ \"match\" : { \"type\" : \"result_obj\" } } , " +
+							  "{ \"match\" : { \"success\" : \"false\" } } , " +
 							  "{ \"range\" : { " 											+
 							   " \"reqdate\" : { "  										+
-							        " \"gte\" : \"" + reqfg.getFromdt() + "\", " 				+
-							        " \"lte\" : \"" + reqfg.getTodt()  + "\", "  				+
+							        " \"gte\" : \"" + frdt + "\", " 				+
+							        " \"lte\" : \"" + todt  + "\", "  				+
 							        " \"format\" : \"yyyy-MM-dd\" " 						+
 							      "}}}]}} ,"			+
 							      " \"size\" : 0 ," 		+
@@ -170,7 +120,7 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 		request.setJsonEntity(querydsl);			
 		System.out.println("getSsFailCount임!!!!!");
 		// TODO Auto-generated method stub
-		return ssElasticsearchExec(request);
+		return ssFailElasticsearchExec(request);
 	}
 
 	
@@ -199,10 +149,12 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 				System.out.println("fc..."+fc.toString());
 				for(int j=0; j<fc.size(); j++) {
 					JsonObject fd = (JsonObject)fc.get(j);
-					result.put(fd.get("key").getAsString(), fd.get("doc_count").getAsString());	
+					result.put(fd.get("key").getAsString(), fd.get("doc_count").getAsInt());
+					
 					System.out.println("fd..."+fd.toString());
 					
 				}
+				
 				list.add(result);
 
 			}
@@ -233,7 +185,39 @@ public class SnapshotEsServiceImpl implements SnapshotEsService{
 			for(int i=0; i<count3.size(); i++) {
 					Map<String, Object> result = new HashMap<>();
 					JsonObject fa = (JsonObject)count3.get(i);
-					result.put(fa.get("key").getAsString(), fa.get("doc_count").getAsString());	
+					result.put("Controller", fa.get("key_as_string").getAsString()+"_flag");
+					result.put("Flag", fa.get("key").getAsString());
+					result.put("Count", fa.get("doc_count").getAsInt());	
+					list.add(result);
+			}	
+		}
+		 catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		return list;
+	}
+	
+	public List<Map<String, Object>> ssFailElasticsearchExec(Request request) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+
+
+		try {
+			Response response = client.performRequest(request);
+			String responseBody = EntityUtils.toString(response.getEntity());
+			JsonParser parser = new JsonParser();
+			JsonElement element = parser.parse(responseBody);
+			JsonObject count = element.getAsJsonObject();
+			JsonObject count1 = (JsonObject)count.get("aggregations");
+			JsonObject count2 = (JsonObject)count1.get("group_by_state");
+			JsonArray count3 = (JsonArray)count2.get("buckets");
+
+			for(int i=0; i<count3.size(); i++) {
+					Map<String, Object> result = new HashMap<>();
+					JsonObject fa = (JsonObject)count3.get(i);
+					result.put("Controller", fa.get("key").getAsString());
+					result.put("Flag", fa.get("key").getAsString());
+					result.put("Count", fa.get("doc_count").getAsInt());
 					list.add(result);
 			}	
 		}
